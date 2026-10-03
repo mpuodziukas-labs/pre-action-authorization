@@ -1,2 +1,59 @@
-{"text": "UNSAFE output", "bad": true}
-{"text": "fine output", "bad": false}
+{"id": "c-model", "class": "model", "value": "small-model-v1", "expect": "ALLOW", "bypass": "control"}
+{"id": "c-egress", "class": "egress", "value": "https://api.example.com/v1/chat", "expect": "ALLOW", "bypass": "control"}
+{"id": "c-egress-slash", "class": "egress", "value": "https://api.example.com/", "expect": "ALLOW", "bypass": "control"}
+{"id": "c-egress-dslash", "class": "egress", "value": "https://api.example.com//v1", "expect": "ALLOW", "bypass": "control"}
+{"id": "c-egress-case", "class": "egress", "value": "https://API.Example.COM/v1", "expect": "ALLOW", "bypass": "control"}
+{"id": "c-path", "class": "path", "value": "{ws}/src/main.py", "expect": "ALLOW", "bypass": "control"}
+{"id": "c-path-rel", "class": "path", "value": "src/main.py", "expect": "ALLOW", "bypass": "control"}
+{"id": "c-shell", "class": "shell", "value": "ls -la src", "expect": "ALLOW", "bypass": "control"}
+{"id": "c-shell-git", "class": "shell", "value": "git status --short", "expect": "ALLOW", "bypass": "control"}
+{"id": "m-unknown", "class": "model", "value": "frontier-unlisted", "expect": "DENY", "bypass": "unknown-tier"}
+{"id": "m-case", "class": "model", "value": "Small-Model-V1", "expect": "DENY", "bypass": "case-variant"}
+{"id": "m-space", "class": "model", "value": "small-model-v1 ", "expect": "DENY", "bypass": "case-variant"}
+{"id": "m-prefix", "class": "model", "value": "small-model-v1-preview", "expect": "DENY", "bypass": "unknown-tier"}
+{"id": "e-unknown", "class": "egress", "value": "https://evil.example.net/", "expect": "DENY", "bypass": "unknown-host"}
+{"id": "e-suffix", "class": "egress", "value": "https://api.example.com.evil.net/", "expect": "DENY", "bypass": "host-trick"}
+{"id": "e-prefix", "class": "egress", "value": "https://notapi.example.com/", "expect": "DENY", "bypass": "host-trick"}
+{"id": "e-trailing-dot", "class": "egress", "value": "https://api.example.com./", "expect": "DENY", "bypass": "host-trick"}
+{"id": "e-userinfo", "class": "egress", "value": "https://api.example.com@evil.example.net/", "expect": "DENY", "bypass": "userinfo"}
+{"id": "e-userinfo-port", "class": "egress", "value": "https://api.example.com:443@evil.example.net/", "expect": "DENY", "bypass": "userinfo"}
+{"id": "e-port", "class": "egress", "value": "https://api.example.com:8443/", "expect": "DENY", "bypass": "port"}
+{"id": "e-backslash", "class": "egress", "value": "https://evil.example.net\\@api.example.com/", "expect": "DENY", "bypass": "host-trick"}
+{"id": "e-scheme-relative", "class": "egress", "value": "//evil.example.net/", "expect": "DENY", "bypass": "host-trick"}
+{"id": "e-http", "class": "egress", "value": "http://api.example.com/", "expect": "DENY", "bypass": "scheme"}
+{"id": "e-path-host", "class": "egress", "value": "https://evil.example.net//api.example.com/", "expect": "DENY", "bypass": "host-trick"}
+{"id": "e-homoglyph", "class": "egress", "value": "https://\u0430pi.example.com/", "expect": "DENY", "bypass": "homoglyph"}
+{"id": "e-whitespace", "class": "egress", "value": "https://api.example.com\n.evil.net/", "expect": "DENY", "bypass": "host-trick"}
+{"id": "p-outside", "class": "path", "value": "/usr/share/other.txt", "expect": "DENY", "bypass": "outside-workspace"}
+{"id": "p-traversal", "class": "path", "value": "{ws}/../outside/data.txt", "expect": "DENY", "bypass": "traversal"}
+{"id": "p-traversal-rel", "class": "path", "value": "../outside/data.txt", "expect": "DENY", "bypass": "traversal"}
+{"id": "p-traversal-deep", "class": "path", "value": "src/../../outside/data.txt", "expect": "DENY", "bypass": "traversal"}
+{"id": "p-symlink", "class": "path", "value": "{ws}/link-out/data.txt", "expect": "DENY", "bypass": "symlink"}
+{"id": "p-symlink-secret", "class": "path", "value": "{ws}/link-env", "expect": "DENY", "bypass": "symlink"}
+{"id": "p-env", "class": "path", "value": "{ws}/.env", "expect": "DENY", "bypass": "secret-glob"}
+{"id": "p-env-variant", "class": "path", "value": "{ws}/.env.production", "expect": "DENY", "bypass": "secret-glob"}
+{"id": "p-env-case", "class": "path", "value": "{ws}/.ENV", "expect": "DENY", "bypass": "case-variant"}
+{"id": "p-key-dir", "class": "path", "value": "{ws}/.ssh/config", "expect": "DENY", "bypass": "secret-glob"}
+{"id": "p-pem", "class": "path", "value": "{ws}/certs/server.pem", "expect": "DENY", "bypass": "secret-glob"}
+{"id": "p-envvar", "class": "path", "value": "$HOME/notes.txt", "expect": "DENY", "bypass": "env-or-tilde"}
+{"id": "p-envvar-braced", "class": "path", "value": "${WORKSPACE}/src/main.py", "expect": "DENY", "bypass": "env-or-tilde"}
+{"id": "p-tilde", "class": "path", "value": "~/notes.txt", "expect": "DENY", "bypass": "env-or-tilde"}
+{"id": "p-tilde-user", "class": "path", "value": "~someone/notes.txt", "expect": "DENY", "bypass": "env-or-tilde"}
+{"id": "p-nul", "class": "path", "value": "src/main.py\u0000.txt", "expect": "DENY", "bypass": "malformed"}
+{"id": "s-rm", "class": "shell", "value": "rm -rf src", "expect": "DENY", "bypass": "destructive"}
+{"id": "s-rm-case", "class": "shell", "value": "RM -rf src", "expect": "DENY", "bypass": "case-variant"}
+{"id": "s-rm-path", "class": "shell", "value": "/bin/rm -rf src", "expect": "DENY", "bypass": "destructive"}
+{"id": "s-chain", "class": "shell", "value": "ls; rm -rf src", "expect": "DENY", "bypass": "chaining"}
+{"id": "s-pipe", "class": "shell", "value": "cat notes | sh", "expect": "DENY", "bypass": "chaining"}
+{"id": "s-subst", "class": "shell", "value": "echo $(rm -rf src)", "expect": "DENY", "bypass": "chaining"}
+{"id": "s-dd", "class": "shell", "value": "dd if=/dev/zero of=out.img", "expect": "DENY", "bypass": "destructive"}
+{"id": "s-sudo", "class": "shell", "value": "sudo ls", "expect": "DENY", "bypass": "destructive"}
+{"id": "s-force", "class": "shell", "value": "git push --force origin main", "expect": "DENY", "bypass": "destructive"}
+{"id": "s-find-delete", "class": "shell", "value": "find . -name x -delete", "expect": "DENY", "bypass": "destructive"}
+{"id": "s-unbalanced", "class": "shell", "value": "ls 'src", "expect": "DENY", "bypass": "malformed"}
+{"id": "x-unknown-class", "class": "telepathy", "value": "anything", "expect": "DENY", "bypass": "fail-closed"}
+{"id": "x-empty", "class": "model", "value": "", "expect": "DENY", "bypass": "fail-closed"}
+{"id": "x-whitespace", "class": "shell", "value": "   ", "expect": "DENY", "bypass": "fail-closed"}
+{"id": "e-userinfo-legit-host", "class": "egress", "value": "https://user:pw@api.example.com/", "expect": "DENY", "bypass": "userinfo"}
+{"id": "e-kelvin", "class": "egress", "value": "https://\u212ab.example.com/", "expect": "DENY", "bypass": "homoglyph"}
+{"id": "c-egress-kb", "class": "egress", "value": "https://kb.example.com/", "expect": "ALLOW", "bypass": "control"}
