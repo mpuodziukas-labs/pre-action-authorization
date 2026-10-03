@@ -1,5 +1,7 @@
 # pre-action-authorization
 
+Proves: a planted tool call outside the allowlist fails closed. Verify in 60s: python3 evaluate.py
+
 An autonomous agent can call a tool with a model, host, file or shell command that nobody approved, and the damage is done before anyone reads a log. The team that owns the data and the bill pays for it, through leaked files, traffic to an unknown host or a deleted directory.
 
 ## Run it (60s)
