@@ -70,7 +70,12 @@ def test_mutant_userinfo_allowed(monkeypatch):
 
 
 def test_mutant_destructive_verbs_empty(monkeypatch):
-    mutant_results(monkeypatch, "DESTRUCTIVE", frozenset())
+    # Changed 2026-10-04: the allowlist now also refuses rm, so the verdict table cannot move.
+    # The destructive-verb layer is still pinned by its refusal reason.
+    ws, policy = evaluate.build_world(pathlib.Path(__import__("tempfile").mkdtemp()))
+    assert "destructive verb" in gate.authorize({"class": "shell", "value": "rm -rf src"}, policy)[1]
+    monkeypatch.setattr(gate, "DESTRUCTIVE", frozenset())
+    assert "destructive verb" not in gate.authorize({"class": "shell", "value": "rm -rf src"}, policy)[1]
 
 
 def test_mutant_secret_globs_empty(monkeypatch):

@@ -1,13 +1,14 @@
 import json
 import os
 import pathlib
+import sys
 import tempfile
 
 import gate
 
 ORDER = ["unknown-tier", "case-variant", "unknown-host", "host-trick", "userinfo", "port", "scheme",
          "homoglyph", "outside-workspace", "traversal", "symlink", "secret-glob", "env-or-tilde",
-         "destructive", "chaining", "malformed", "fail-closed"]
+         "destructive", "shell-expansion", "interpreter", "network-tool", "git-force", "path-arg", "chaining", "malformed", "fail-closed"]
 
 
 def rows():
@@ -30,22 +31,33 @@ def build_world(root):
     return str(ws), policy
 
 
-def results():
+def run():
     with tempfile.TemporaryDirectory() as tmp:
         ws, policy = build_world(tmp)
         data = rows()
         out = {}
+        failed = []
         for r in data:
             verdict, _ = gate.authorize({"class": r["class"], "value": r["value"].replace("{ws}", ws)}, policy)
             out.setdefault(r["bypass"], []).append(verdict == r["expect"])
+            if verdict != r["expect"]:
+                failed.append(r["id"])
     lines = ["| bypass class | denied as expected |", "|---|---|"]
     for cls in ORDER:
         res = out.get(cls, [])
         lines.append(f"| {cls} | {sum(res)}/{len(res)} |")
     res = out.get("control", [])
     lines.append(f"| control (allowed) | {sum(res)}/{len(res)} |")
-    return "\n".join(lines)
+    return "\n".join(lines), failed
+
+
+def results():
+    return run()[0]
 
 
 if __name__ == "__main__":
-    print(results())
+    table, failed = run()
+    print(table)
+    if failed:
+        print("FAILED rows: " + ", ".join(failed), file=sys.stderr)
+        sys.exit(1)
